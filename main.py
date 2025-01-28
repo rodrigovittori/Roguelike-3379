@@ -1,14 +1,16 @@
 #pgzero
 
 """
-Version actual: [M7.L1] - Actividad #3: "Bucles anidados"
-Objetivo: Implementar bucles for anidados que dibujen nuestro mapa
+Version actual: [M7.L1] - Actividad #5: "Atributos"
+Objetivo del ejercicio: Familiarizarnos con los atributos agregando salud y ataque a nuestro personaje
+> Creamos nuestro personaje como un objeto Actor() con sus respectivos atributos y los mostramos por pantalla
 
-Paso Nº 1: Crear los Actores que contienen nuestros tipos de casillas
-Paso Nº 2: Crear mi Función dibujar_mapa(mapa) que convierte los datos de una tabla (mapa) en los gráficos de nuestro nivel
-Paso Nº 3: Crear una variable que almacene la habitación actual
-Paso Nº 4: Eliminamos el código del draw() que nos mostraba el tamaño de la pantalla
-Paso Nº 5: Agregamos nuestro update(dt)
+NOTA: La actividad #4 fue resuelta con el código de la actividad #3
+
+Pasos:
+#1: Creamos Actor() personaje
+#2: Le damos sus atributos
+#3: Eliminamos update() y modificamos nuestra función draw()
 
 Nota: en el próximo ejercicio es que se crean los actores para dibujar
 
@@ -41,6 +43,16 @@ HEIGHT = celda.height * cant_celdas_alto  # Alto de la ventana (en píxeles)
 
 TITLE = "Rogue-like: Mazmorra Maldita" # Título de la ventana de juego
 FPS = 30 # Número de fotogramas por segundo
+
+""" ******************************************************************* """
+
+# Personaje:
+personaje = Actor("stand")
+# Nota: si quieren llevar control de la vida, pueden crear dos atributos: "salud_max" y "salud_actual"
+personaje.salud = 100
+# Nota: si quieren hacer más interesante el combate pueden agregar atributos para el valor mínimo de ataque y el máximo
+#       (también pueden implementar un sistema de miss y critical hits)
+personaje.ataque = 5
 
 ################## MAPAS ##################
 
@@ -113,20 +125,10 @@ def dibujar_mapa(mapa):
 def draw():
     #screen.fill((200,200,200))
     
-    # >>> Probamos dibujar mapa <<<
     dibujar_mapa(mapa_actual)
-    
-    screen.draw.text(("  Ventana de " + str(cant_celdas_ancho) + " x " + str(cant_celdas_alto) + "  "), center=(WIDTH/2, int(celda.height /2)), color = "white", background = "black", fontsize = int(celda.height /2))
 
-    screen.draw.text("Pulse [Espacio] para alternar el diseño del mapa", center=(WIDTH/2, ((cant_celdas_alto * celda.height) - int(celda.height /2))), color = "white", background = "black", fontsize = int(celda.height /3))
+    personaje.draw()
     
-    
-
-def update(dt):
-    global mapa_actual
-    
-    if keyboard.space:
-        if mapa_actual == mapa:
-            mapa_actual = mapa_2
-        else:
-            mapa_actual = mapa
+    # Mostramos valores personaje:
+    screen.draw.text(("❤️: " + str(personaje.salud)), midright=((WIDTH - 15), 14), color = 'white', fontsize = 16)
+    screen.draw.text(("🗡️: " + str(personaje.ataque)), midright=((WIDTH - 15), 36), color = 'white', fontsize = 16)
