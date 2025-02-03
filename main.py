@@ -1,19 +1,15 @@
 #pgzero
 
 """
-Version actual: [M7.L2] - Actividad #2 "Generando enemigos"
-Objetivo del ejercicio: Agregar generación aleatoria de enemigos con atributos randomizados
-
-NOTA: La Actividad # 1 es actualizar el mapa de sueños
+Version actual: [M7.L2] - Actividad #3: "Método Collidelist"
+Objetivo del ejercicio: Agregar colisiones y daño entre personajes
 
 Pasos:
-#1: Importar random
-#2: creamos una constante que determine la cantidad de enemigos a spawnear (5)
-#3: Creamos un bucle FOR donde calculamos la posición, la validamos,
-    creamos los actores enemigos y les asignamos su salud y ataque con valores randomizados
-#4: Agregamos un bucle FOR en nuestro draw() para mostrar los enemigos en pantalla
+#1: Crear una variable donde almacenar la info de colisiones
+#2: Después de mover al personaje, actualizamos nuestro valor de colisiones
+#3: En caso de colisión, calculamos los daños y actualizamos los valores
 
-Nota: Pronto calcularemos las colisiones contra ellos
+Nota: Se resta salud, más TODAVÍA no eliminamos enemigos - será en la próxima tarea -
 
 =========================================================================================
 Pack Kodland: https://kenney.nl/assets/roguelike-caves-dungeons (NO VIENE PRECORTADO)
@@ -65,7 +61,7 @@ personaje.left = celda.width
 ################ VARIABLES ################
 
 CANT_ENEMIGOS_A_SPAWNEAR = 5
-
+colision = -2 # ¿XQ -2 como valor inicial?: porque es un valor que NO nos puede devolver collidelist.
 lista_enemigos = []
 
 """ ******************************************************************* """
@@ -165,7 +161,10 @@ def dibujar_mapa(mapa):
     
     # Agregar texto?
 
-### FUNCIONES PG-ZERO ###
+
+"""   #####################
+     # FUNCIONES PG-ZERO #
+    #####################   """
 
 def draw():
     screen.fill("#2f3542") # rgb = (47, 53, 66)
@@ -197,3 +196,14 @@ def on_key_down(key):
     
   elif ((keyboard.up or keyboard.w) and (personaje.y > (celda.height * 2))):
         personaje.y -= celda.height
+
+  ################## COLISIONES ##################
+
+  colision = personaje.collidelist(lista_enemigos)
+
+  if (colision != -1):
+      # Si hubo colisión con un enemigo:
+      enemigo_atacado = lista_enemigos[colision]
+      enemigo_atacado.salud -= personaje.ataque
+      personaje.salud -= enemigo_atacado.ataque
+  # Nota: Podríamos agrgar un sistema de puntos de daño flotantes en pantalla
