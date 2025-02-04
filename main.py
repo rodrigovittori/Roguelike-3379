@@ -1,15 +1,14 @@
 #pgzero
 
 """
-Version actual: [M7.L2] - Actividad #3: "Método Collidelist"
-Objetivo del ejercicio: Agregar colisiones y daño entre personajes
+Version actual: [M7.L2] - Actividad #4: "Procesamiento de colisiones"
+Objetivo del ejercicio: Eliminar enemigos cuya salud sea menor o igual a 0 puntos
+
+NOTA: Todavía NO hay game-over (somos inmortales :D)
 
 Pasos:
-#1: Crear una variable donde almacenar la info de colisiones
-#2: Después de mover al personaje, actualizamos nuestro valor de colisiones
-#3: En caso de colisión, calculamos los daños y actualizamos los valores
-
-Nota: Se resta salud, más TODAVÍA no eliminamos enemigos - será en la próxima tarea -
+#1: Crear una variable donde almacenemos la posición del jugador ANTES de moverse, en caso de colisión, lo regresamos a esas coordenadas
+#2: Agregar una condición donde, si hubo colisión Y la salud del enemigo baja a 0 o un valor negativo, lo eliminamos
 
 =========================================================================================
 Pack Kodland: https://kenney.nl/assets/roguelike-caves-dungeons (NO VIENE PRECORTADO)
@@ -179,7 +178,14 @@ def draw():
     screen.draw.text(("❤️: " + str(personaje.salud)), midleft=(30, (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
     screen.draw.text(("🗡️: " + str(personaje.ataque)), midright=((WIDTH - 30), (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
 
+    # Cartel para explicar collidelist:
+    screen.draw.text(("colision= " + str(colision)), center=((WIDTH/2), (int(celda.height/2))), color = 'white', background="black", fontsize = 24)
+    
 def on_key_down(key):
+
+  global colision
+
+  pos_previa = personaje.pos # Posición previa a pulsar la tecla
   
   if ((keyboard.right or keyboard.d) and (personaje.x < (WIDTH - celda.width * 2))):
     # ¿Xq 2?: Una (a la que me voy a desplazar) y otra (por la pared, que NO puedo atravesar)
@@ -203,7 +209,22 @@ def on_key_down(key):
 
   if (colision != -1):
       # Si hubo colisión con un enemigo:
+
+      # Paso 1: Calculamos daños
       enemigo_atacado = lista_enemigos[colision]
       enemigo_atacado.salud -= personaje.ataque
       personaje.salud -= enemigo_atacado.ataque
-  # Nota: Podríamos agrgar un sistema de puntos de daño flotantes en pantalla
+      # Nota: Podríamos agrgar un sistema de puntos de daño flotantes en pantalla
+
+      # Paso 2: Volvemos al personaje a su posición anterior:
+      personaje.pos = pos_previa
+      
+      # Si el enemigo se quedó sin puntos de salud, lo eliminamos:
+      if (enemigo_atacado.salud <= 0):
+          # Método Nº 1: pop() con índice según colision
+          #lista_enemigos.pop(colision)
+
+          # Método Nº 2: remove(enemigo_atacado)
+          lista_enemigos.remove(enemigo_atacado)
+
+          # To-do: modificar la casilla / spawnear una pila de huesitos donde muere el esqueleto
