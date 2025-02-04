@@ -1,12 +1,17 @@
 #pgzero
 
 """
-Version actual: [M7.L2] - Actividad #6: "Recolectando bonificaciones"
-Objetivo del ejercicio: Agregar colisiones de los bonus e implementamos sus efectos
+Version actual: [M7.L2] - Actividades Adicionales
+Objetivo del ejercicio: Agregar condiciones de fin de juego
+Tarea: Publicar el Juego en el HUB
 
-NOTA: La PRÓXIMA TAREA es el game-over
+NOTA: Este código también cumple con lo propuesto en la Activdad Extra "controles mejorados"
 
-Pasos: ** Modificar nuestra función de colisiones **
+Pasos:
+#1: Crear nuevas variables: una que controla el modo_actual
+#2: Crear función que compruebe el fin de juego
+#3: Llamar a la función que comprueba el fin de juego después de cada movimiento
+#4: Modificar nuestro draw() para que en caso de "transición" nos muestre un mensaje indicando lo siguiente
 
 =========================================================================================
 Pack Kodland: https://kenney.nl/assets/roguelike-caves-dungeons (NO VIENE PRECORTADO)
@@ -59,6 +64,11 @@ personaje.left = celda.width
 
 CANT_ENEMIGOS_A_SPAWNEAR = 5
 colision = -2 # ¿XQ -2 como valor inicial?: porque es un valor que NO nos puede devolver collidelist.
+modo_actual = "juego"
+partida_finalizada = False # To-do: agregar variable para la habitación (no la partida)
+resultado_partida = "jugando" # valores: "jugando"/"victoria"/"derrota"
+
+# Listas
 lista_enemigos = []
 lista_bonus = []
 
@@ -120,9 +130,18 @@ mapa_actual = mapa # mapa a dibujar // cambiar valor si cambiamos de habitación
      # FUNCIONES PROPIAS #
     #####################   """
 
-mapa_actual = mapa # mapa a dibujar // cambiar valor si cambiamos de habitación
+def comprobar_fin_de_juego():
+    global modo_actual, partida_finalizada, resultado_partida
+    
+    if (personaje.salud <= 0): # El personaje fue derrotado
+        modo_actual = "transicion"
+        partida_finalizada = True
+        resultado_partida = "derrota"
 
-### FUNCIONES PROPIAS ###
+    elif ((lista_enemigos == []) and (personaje.salud > 0)): # NOTA: tener en cuenta si se modifica el juego (bonus, transciciones, etc)
+        modo_actual = "transicion"
+        partida_finalizada = True
+        resultado_partida = "victoria"
 
 def dibujar_mapa(mapa):
 
@@ -166,23 +185,41 @@ def dibujar_mapa(mapa):
     #####################   """
 
 def draw():
-    screen.fill("#2f3542") # rgb = (47, 53, 66)
-    dibujar_mapa(mapa_actual)
 
-    for bonus in lista_bonus:
-        bonus.draw()
-
-    for enemigo in lista_enemigos:
-        enemigo.draw()
+    if (modo_actual == "juego"):
+        screen.fill("#2f3542") # rgb = (47, 53, 66)
+        dibujar_mapa(mapa_actual)
     
-    personaje.draw()
+        for bonus in lista_bonus:
+            bonus.draw()
     
-    # Mostramos valores personaje:
-    screen.draw.text(("❤️: " + str(personaje.salud)), midleft=(30, (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
-    screen.draw.text(("🗡️: " + str(personaje.ataque)), midright=((WIDTH - 30), (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
+        for enemigo in lista_enemigos:
+            enemigo.draw()
+        
+        personaje.draw()
+        
+        # Mostramos valores personaje:
+        screen.draw.text(("❤️: " + str(personaje.salud)), midleft=(30, (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
+        screen.draw.text(("🗡️: " + str(personaje.ataque)), midright=((WIDTH - 30), (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
+    
 
-    # Cartel para explicar collidelist:
-    screen.draw.text(("colision= " + str(colision)), center=((WIDTH/2), (int(celda.height/2))), color = 'white', background="black", fontsize = 24)
+    elif (modo_actual == "transicion"):
+        screen.fill("#2f3542")  # rgb = (47, 53, 66)
+        
+        if (partida_finalizada):
+            if (resultado_partida == "victoria"):
+                screen.draw.text("¡Ganaste!", center=(WIDTH/2, HEIGHT/3), color = 'white', fontsize = 46)
+                screen.draw.text("Presiona [Espacio] para reiniciar", center=(WIDTH/2, HEIGHT/3 *2), color = 'white', fontsize = 24)
+            else:
+                screen.draw.text("¡Perdiste!", center=(WIDTH/2, HEIGHT/3), color = 'white', fontsize = 46)
+                screen.draw.text("Presiona [Espacio] para reiniciar", center=(WIDTH/2, HEIGHT/3 *2), color = 'white', fontsize = 24)
+
+            screen.draw.text("** Tienes que programar el reinicio de Juego** ", center=(WIDTH/2, HEIGHT/5 *4), color = 'yellow', fontsize = 18)
+            
+        else:
+            # Partida NO-finalizada
+            screen.draw.text("Entrando a la Sala: [NEXT]", center=(WIDTH/2, HEIGHT/3), color = 'white', fontsize = 46)
+            screen.draw.text("Presiona [Espacio] para reiniciar", center=(WIDTH/2, HEIGHT/3 *2), color = 'white', fontsize = 24)
     
 def on_key_down(key):
 
@@ -269,3 +306,5 @@ def on_key_down(key):
 
           # Ya aplicado el efecto, eliminamos el bonus:
           lista_bonus.remove(bonus_encontrado)
+          
+  comprobar_fin_de_juego()
