@@ -1,19 +1,23 @@
 #pgzero
 
 """
-Version actual: [M7.L2] - Actividad #4: "Procesamiento de colisiones"
-Objetivo del ejercicio: Eliminar enemigos cuya salud sea menor o igual a 0 puntos
+Version actual: [M7.L2] - Actividad #5: "Aparición de las bonificaciones"
+Objetivo del ejercicio: Agregar mecánicas de bonus, su spawn, mostrarlas en pantalla
 
-NOTA: Todavía NO hay game-over (somos inmortales :D)
+NOTA: Todavía SEGUIMOS sin game-over (somos inmortales :D)
+
+NOTA 2: Las colisiones con los bonus se programan en la SIGUIENTE tarea
 
 Pasos:
-#1: Crear una variable donde almacenemos la posición del jugador ANTES de moverse, en caso de colisión, lo regresamos a esas coordenadas
-#2: Agregar una condición donde, si hubo colisión Y la salud del enemigo baja a 0 o un valor negativo, lo eliminamos
+#1: Crear una nueva lista para los bonus
+#2: Durante la creación de enemigos vamos a asignarles un valor de bonus que dropearán tras ser derrotados
+#3: Agregar un bucle en draw para dibujar los bonus en pantalla
+#4: Al derrotar a un enemigo, spawnearemos el bonus que se le asignó al crearlo
 
 =========================================================================================
 Pack Kodland: https://kenney.nl/assets/roguelike-caves-dungeons (NO VIENE PRECORTADO)
-packs de assets: https://kenney.nl/assets/series:Tiny?sort=update (LO TIENEN QUE ESCALAR)
-pack escalado (drive del profe): https://drive.google.com/drive/folders/19obh4TK0RIBWlXOsaOq9uJ287jUHuLTn?usp=drive_link
+Packs de assets: https://kenney.nl/assets/series:Tiny?sort=update (LO TIENEN QUE ESCALAR)
+Pack escalado (drive del profe): https://drive.google.com/drive/folders/19obh4TK0RIBWlXOsaOq9uJ287jUHuLTn?usp=drive_link
 
 > Para redimensionar assets https://imageresizer.com/bulk-resize/
 """
@@ -62,6 +66,7 @@ personaje.left = celda.width
 CANT_ENEMIGOS_A_SPAWNEAR = 5
 colision = -2 # ¿XQ -2 como valor inicial?: porque es un valor que NO nos puede devolver collidelist.
 lista_enemigos = []
+lista_bonus = []
 
 """ ******************************************************************* """
 ################## GENERAR ENEMIGOS ##################
@@ -85,6 +90,7 @@ while (len(lista_enemigos) < CANT_ENEMIGOS_A_SPAWNEAR):
         # Si NO hay conflicto: randomizamos salud, ataque y lo agregamos a lista_enemigos
         nvo_enemigo.salud = random.randint(10, 20)
         nvo_enemigo.ataque = random.randint(5, 10)
+        nvo_enemigo.bonus = random.randint(0, 2) # 0: NADA / 1: curacion / 2: espadas
         lista_enemigos.append(nvo_enemigo)
         
 ################## MAPAS ##################
@@ -169,6 +175,9 @@ def draw():
     screen.fill("#2f3542") # rgb = (47, 53, 66)
     dibujar_mapa(mapa_actual)
 
+    for bonus in lista_bonus:
+        bonus.draw()
+
     for enemigo in lista_enemigos:
         enemigo.draw()
     
@@ -221,6 +230,24 @@ def on_key_down(key):
       
       # Si el enemigo se quedó sin puntos de salud, lo eliminamos:
       if (enemigo_atacado.salud <= 0):
+          
+          # ANTES DE DESTRUÍRLO/ELIMINARLO -> Spawneamos bonus:
+          if (enemigo_atacado.bonus == 0):
+              # NADA
+              enemigo_atacado.bonus += 0 # TENGO que poner algo para que python NO devuelva error
+              
+          elif (enemigo_atacado.bonus == 1):
+              # Spawneamos curación:
+              nvo_bonus = Actor("heart", enemigo_atacado.pos)    # Spawneo un nuevo bonus en la posición del enemigo derrotado
+              lista_bonus.append(nvo_bonus)                      # Lo agrego a la lista de bonus
+
+          elif (enemigo_atacado.bonus == 2):
+              # Spawneamos mejora ataque:
+              nvo_bonus = Actor("sword", enemigo_atacado.pos)    # Spawneo un nuevo bonus en la posición del enemigo derrotado
+              lista_bonus.append(nvo_bonus)                      # Lo agrego a la lista de bonus
+
+          # Ya creado el bonus, bye bye~♥
+          
           # Método Nº 1: pop() con índice según colision
           #lista_enemigos.pop(colision)
 
